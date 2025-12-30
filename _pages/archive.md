@@ -5,8 +5,8 @@ title: projects
 ---
 
 
-<div id="archives">
-  <section id="archive">
+<div id="projects">
+  <section id="projects">
      <h3>Most Recent Posts</h3>
       {%for post in site.posts %}
       {% unless post.next %}
