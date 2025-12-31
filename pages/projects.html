@@ -8,44 +8,69 @@
     </head>
       
     <body>
-        <main class="waterfall">
-            
-            <div class="waterfall-track">
-              <!-- Set A -->
-              <div class="grid" id="grid1">
-                <!-- repeat 49 times -->
-                <!-- ... -->
-              </div>
+
+      <div class="fixed-buttons">
+        <a href="toastworks.html" class="image-button">
+          <img src="../assets/toastworks.png" alt="Toastworks">
+        </a>
+      
+        <a href="eyetoeye.html" class="image-button">
+          <img src="../assets/eyetoeye.png" alt="Eye to Eye">
+        </a>
+
+        <a href="sustainable.html" class="image-button">
+          <img src="../assets/sustainable.png" alt="Sustainable">
+        </a>
+
+        <a href="meatball.html" class="image-button">
+          <img src="../assets/meatball.png" alt="Meatball">
+        </a>
+
+      </div>
+      <div id="end-point"></div>
+      
+
+      <main class="waterfall">
           
-              <!-- Set B (exact duplicate) -->
-              <div class="grid" id="grid2">
-                <!-- ... -->
-              </div>
+          <div class="waterfall-track">
+            <!-- Set A -->
+            <div class="grid" id="grid1">
+              <!-- repeat 49 times -->
+              <!-- ... -->
             </div>
+        
+            <!-- Set B (exact duplicate) -->
+            <div class="grid" id="grid2">
+              <!-- ... -->
+            </div>
+          </div>
 
-            <div class="fade fade-top"></div>
-            <div class="fade fade-bottom"></div>
+          <div class="fade fade-top"></div>
+          <div class="fade fade-bottom"></div>
 
-          </main>
-          
+        </main>
+        
 
-          <script>
-            const grid1 = document.getElementById('grid1');
-            const grid2 = document.getElementById('grid2');
-          
-            let tilesHTML = '';
-          
-            for (let i = 0; i < 49; i++) {
-              tilesHTML += `
-                <div class="tile">
-                  <img src="../assets/sketch${i + 1}.jpg" decoding="async">
-                </div>
-              `;
-            }
-          
-            grid1.innerHTML = tilesHTML;
-            grid2.innerHTML = tilesHTML;
-          </script>
+        <script>
+          const grid1 = document.getElementById('grid1');
+          const grid2 = document.getElementById('grid2');
+        
+          let tilesHTML = '';
+        
+          for (let i = 0; i < 49; i++) {
+            tilesHTML += `
+              <div class="tile">
+                <img src="../assets/sketches/sketch${i + 1}.jpg" decoding="async">
+              </div>
+            `;
+          }
+        
+          grid1.innerHTML = tilesHTML;
+          grid2.innerHTML = tilesHTML;
+        </script>
+
+
+
           
     </body>
 </html>
