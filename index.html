@@ -7,7 +7,8 @@
 <link rel="preload" as="image" href="assets/skybg.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono&display=swap" rel="stylesheet">
+<!-- Geist via Google Fonts (closest available); fallback to system sans-serif -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -15,7 +16,7 @@
     width: 100%; height: 100%;
     overflow: hidden;
     background: #0a0a0a;
-    font-family: 'Space Mono', monospace;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     cursor: crosshair;
   }
 
@@ -47,11 +48,14 @@
     z-index: 1;
   }
 
-  /* ── NAV — no animation, stretches ~halfway, very soft fade ── */
+  /* ── NAV
+     - solid white ends / gradient begins further left
+     - width stays 50vw but the opaque zone starts later (further right)
+     - leaves sit OVER this (z-index higher than nav)
+  ── */
   nav {
     position: absolute;
     top: 0; right: 0;
-    /* ~50% of screen width for the fade zone */
     width: 50vw;
     height: 100%;
     display: flex;
@@ -60,38 +64,36 @@
     gap: 18px;
     padding-right: 32px;
     /*
-      Very gentle fade: starts fully transparent at left edge,
-      eases in very slowly, only becomes fully white at the far right.
-      The long transparent zone makes it feel natural/barely there.
+      Solid white doesn't kick in until ~72% across the nav panel
+      so the hard white edge sits further right on screen.
     */
     background: linear-gradient(to right,
-      transparent               0%,
-      rgba(255,255,255,0.04)   25%,
-      rgba(255,255,255,0.15)   40%,
-      rgba(255,255,255,0.50)   60%,
-      rgba(255,255,255,0.90)   78%,
-      #ffffff                 100%
+      transparent              0%,
+      rgba(255,255,255,0.02)  45%,
+      rgba(255,255,255,0.12)  58%,
+      rgba(255,255,255,0.45)  70%,
+      rgba(255,255,255,0.88)  82%,
+      #ffffff                100%
     );
     z-index: 20;
-    /* no animation */
   }
   nav a {
     display: block;
     text-align: right;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
     text-decoration: none;
     color: #222;
     transition: color 0.2s, transform 0.2s;
     position: relative;
-    /* no animation */
   }
   nav a::after {
     content: '';
     position: absolute;
     bottom: -3px; right: 0;
-    width: 0; height: 1.5px;
+    width: 0; height: 1px;
     background: #f03e8e;
     transition: width 0.25s;
   }
@@ -105,49 +107,45 @@
     top: 33%;
     width: 185px;
     font-size: 0.63rem;
+    font-weight: 300;
     line-height: 1.75;
     color: #1a1a1a;
     z-index: 10;
   }
 
-  /* ── HEADLINE ── */
-  .headline {
+  /* ── NAME IMAGE (replaces individual letter spans) ── */
+  .name-img {
     position: absolute;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    z-index: 10;
+    /* same rough area as the old letter block */
+    left: 6vw;
+    top: 30%;
+    width: clamp(280px, 38vw, 520px);
     pointer-events: none;
-  }
-  .letter {
-    position: absolute;
-    font-family: 'Anton', sans-serif;
-    line-height: 1;
-    display: block;
+    z-index: 10;
+    /* drop shadow so it reads on both light & dark areas of sky */
+    filter: drop-shadow(0px 2px 8px rgba(0,0,0,0.12));
   }
 
-  /* ── STATIC DECORATIVE — much bigger ── */
+  /* ── STATIC DECORATIVE ── */
   .deco-graphic {
     position: absolute;
     left: -4%;
     top: -8%;
-    /* way bigger — clips generously off top-left */
-    width: clamp(280px, 42vw, 580px);
+    width: clamp(320px, 50vw, 680px); /* bigger loop */
     pointer-events: none;
     z-index: 9;
-    /* image-rendering hint for perf */
-    image-rendering: auto;
   }
+  /* Leaves: bigger, and z-index ABOVE nav (21) so they sit over the white */
   .deco-leaves {
     position: absolute;
-    right: 0;
-    top: -4%;
-    /* much bigger — clips off right edge */
-    width: clamp(180px, 22vw, 320px);
+    right: -2%;         /* slightly off right edge */
+    top: -5%;
+    width: clamp(240px, 30vw, 420px); /* much bigger */
     pointer-events: none;
-    z-index: 5;
+    z-index: 21;        /* above nav z-index:20 */
   }
 
-  /* ── FLOATING OBJECTS — bigger, more spread left ── */
+  /* ── FLOATING OBJECTS ── */
   .obj {
     position: absolute;
     pointer-events: all;
@@ -159,23 +157,15 @@
     width: 100%; height: 100%;
     object-fit: contain;
     display: block;
-    /* hint browser to decode off main thread */
-    decoding: async;
   }
 
-  /*
-    TOP CLUSTER — bigger sizes, spread across left ~60% of screen.
-    Objects nudged to avoid overlapping the name block (8–38vw).
-  */
+  /* TOP CLUSTER */
   .obj-yoyo     { left: 28%;  top: -5%;   width: clamp(110px, 14vw, 195px); }
   .obj-cube     { left: 40%;  top:  0%;   width: clamp(95px,  12vw, 170px); }
-  .obj-scissors { left: 53%;  top: -5%;   width: clamp(75px,  9vw,  130px); }
+  .obj-scissors { left: 53%;  top: -5%;   width: clamp(75px,   9vw, 130px); }
   .obj-8ball    { left: 61%;  top:  3%;   width: clamp(90px,  11vw, 155px); }
 
-  /*
-    BOTTOM CLUSTER — bigger, spread more generously left→center.
-    Globe anchors far left, others fan out to ~55% of screen width.
-  */
+  /* BOTTOM CLUSTER */
   .obj-globe    { left:  1%;  bottom:  8%; width: clamp(140px, 17vw, 230px); z-index:11; }
   .obj-phone    { left: 18%;  bottom: 14%; width: clamp(130px, 16vw, 215px); z-index:10; }
   .obj-heart    { left: 17%;  bottom:  4%; width: clamp(90px,  11vw, 150px); z-index:9; }
@@ -201,10 +191,6 @@
     0%,100% { transform: translateY(-5px) rotate(var(--rot, -1deg)); }
     50%     { transform: translateY( 7px) rotate(calc(var(--rot, -1deg) + 3deg)); }
   }
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(24px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
   .float1 { animation: float1 var(--dur,6s) ease-in-out infinite; opacity:1; }
   .float2 { animation: float2 var(--dur,7s) ease-in-out infinite; opacity:1; }
   .float3 { animation: float3 var(--dur,6.5s) ease-in-out infinite; opacity:1; }
@@ -218,7 +204,6 @@
 
   <!-- STATIC DECORATIVE -->
   <img class="deco-graphic" src="assets/bggraphic.png" alt="" loading="eager">
-  <img class="deco-leaves"  src="assets/leaves.png"    alt="" loading="eager">
 
   <!-- NAV -->
   <nav>
@@ -231,26 +216,14 @@
     <a href="pages/contact.html">contact</a>
   </nav>
 
+  <!-- LEAVES — rendered AFTER nav so it paints on top -->
+  <img class="deco-leaves" src="assets/leaves.png" alt="" loading="eager">
+
+  <!-- NAME as PNG -->
+  <img class="name-img" src="assets/ashleyhavens.png" alt="ashley havens">
+
   <!-- BIO -->
   <p class="bio">Ashley Havens is a multidisciplinary designer working across digital, print, and visual systems, with a focus on experimental and concept-driven design.</p>
-
-  <!-- HEADLINE -->
-  <div class="headline">
-    <!-- ashley — white -->
-    <span class="letter" style="left:8vw;  top:38%; font-size:clamp(38px,5.8vw,80px);  color:#fff; transform:rotate(-3deg) translateY( 5px);">a</span>
-    <span class="letter" style="left:13vw; top:34%; font-size:clamp(46px,7.2vw,98px);  color:#fff; transform:rotate( 2deg) translateY(-8px);">S</span>
-    <span class="letter" style="left:19vw; top:37%; font-size:clamp(36px,5.4vw,74px);  color:#fff; transform:rotate(-1deg) translateY( 3px);">h</span>
-    <span class="letter" style="left:23vw; top:32%; font-size:clamp(50px,7.6vw,104px); color:#fff; transform:rotate( 3deg) translateY(-10px);">L</span>
-    <span class="letter" style="left:28vw; top:36%; font-size:clamp(38px,6vw,82px);    color:#fff; transform:rotate(-2deg) translateY( 4px);">e</span>
-    <span class="letter" style="left:33vw; top:30%; font-size:clamp(48px,7.4vw,100px); color:#fff; transform:rotate( 5deg) translateY(-12px);">Y</span>
-    <!-- havens — solid black -->
-    <span class="letter" style="left:8vw;  top:50%; font-size:clamp(36px,5.4vw,74px);  color:#111; transform:rotate(-2deg) translateY( 2px);">h</span>
-    <span class="letter" style="left:13vw; top:47%; font-size:clamp(50px,7.6vw,102px); color:#111; transform:rotate( 3deg) translateY(-6px);">A</span>
-    <span class="letter" style="left:19vw; top:49%; font-size:clamp(42px,6.6vw,90px);  color:#111; transform:rotate(-1deg) translateY( 3px);">v</span>
-    <span class="letter" style="left:24vw; top:46%; font-size:clamp(44px,6.8vw,94px);  color:#111; transform:rotate( 2deg) translateY(-5px);">e</span>
-    <span class="letter" style="left:29vw; top:48%; font-size:clamp(38px,6vw,82px);    color:#111; transform:rotate(-3deg) translateY( 4px);">n</span>
-    <span class="letter" style="left:34vw; top:44%; font-size:clamp(48px,7.4vw,100px); color:#111; transform:rotate( 4deg) translateY(-8px);">S</span>
-  </div>
 
   <!-- TOP CLUSTER -->
   <div class="obj obj-yoyo"     data-float="3" data-dur="5.5s" data-rot="-2deg"><img src="assets/yoyo.png"     alt="yoyo"     loading="lazy"></div>
