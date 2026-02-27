@@ -1,76 +1,236 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Projects</title>
-        <link rel="stylesheet" href="../styles.css">
-    </head>
-      
-    <body>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — Ashley Havens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-      <div class="fixed-buttons">
-        <a href="toastworks.html" class="image-button">
-          <img src="../assets/toastworks.png" alt="Toastworks">
-        </a>
-      
-        <a href="eyetoeye.html" class="image-button">
-          <img src="../assets/eyetoeye.png" alt="Eye to Eye">
-        </a>
+  :root {
+    --cols: 7;          /* tiles per row */
+    --tile: 120px;      /* tile size */
+    --gap: 4px;
+    --nav-h: 64px;
+    --btn-w: 200px;
+  }
 
-        <a href="sustainable.html" class="image-button">
-          <img src="../assets/sustainable.png" alt="Sustainable">
-        </a>
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #f0ede8;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    cursor: crosshair;
+  }
 
-        <a href="meatball.html" class="image-button">
-          <img src="../assets/meatball.png" alt="Meatball">
-        </a>
+  /* ── BACK LINK ── */
+  .back {
+    position: fixed;
+    top: 20px; left: 24px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: #555;
+    z-index: 50;
+    transition: color 0.2s;
+  }
+  .back:hover { color: #111; }
+  .back::before { content: '← '; }
 
-      </div>
-      <div id="end-point"></div>
-      
+  /* ── PROJECT BUTTONS — fixed left column ── */
+  .project-nav {
+    position: fixed;
+    left: 0; top: 0;
+    width: var(--btn-w);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 20px;
+    background: rgba(240,237,232,0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-right: 1px solid rgba(0,0,0,0.06);
+    z-index: 30;
+  }
 
-      <main class="waterfall">
-          
-          <div class="waterfall-track">
-            <!-- Set A -->
-            <div class="grid" id="grid1">
-              <!-- repeat 49 times -->
-              <!-- ... -->
-            </div>
-        
-            <!-- Set B (exact duplicate) -->
-            <div class="grid" id="grid2">
-              <!-- ... -->
-            </div>
-          </div>
+  .project-btn {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1),
+                box-shadow 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .project-btn:hover {
+    transform: scale(1.04) translateX(3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+  }
+  .project-btn img {
+    width: 100%;
+    display: block;
+    border-radius: 10px;
+  }
 
-          <div class="fade fade-top"></div>
-          <div class="fade fade-bottom"></div>
+  /* ── WATERFALL BACKGROUND ── */
+  .waterfall {
+    position: fixed;
+    /* offset so it sits to the right of the nav buttons */
+    left: var(--btn-w);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    /* isolate compositing layer */
+    isolation: isolate;
+  }
 
-        </main>
-        
+  /*
+    Performance approach:
+    - Single track div, scrolled via CSS animation
+    - translate3d forces GPU compositing — no layout thrash
+    - contain: strict tells browser not to repaint outside this box
+    - Two sets (A+B) seamlessly loop
+  */
+  .waterfall-track {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--tile));
+    gap: var(--gap);
+    width: calc(var(--cols) * var(--tile) + (var(--cols) - 1) * var(--gap));
+    /* center the grid in the available space */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    will-change: transform;
+    contain: layout style;
+    animation: scrollDown 40s linear infinite;
+  }
 
-        <script>
-          const grid1 = document.getElementById('grid1');
-          const grid2 = document.getElementById('grid2');
-        
-          let tilesHTML = '';
-        
-          for (let i = 0; i < 49; i++) {
-            tilesHTML += `
-              <div class="tile">
-                <img src="../assets/sketches/sketch${i + 1}.jpg" decoding="async">
-              </div>
-            `;
-          }
-        
-          grid1.innerHTML = tilesHTML;
-          grid2.innerHTML = tilesHTML;
-        </script>
+  /*
+    Key: animation uses translate3d (GPU), not top/margin.
+    The track is 2× tall (sets A+B), so we scroll exactly half
+    then snap back — seamless infinite loop.
+  */
+  @keyframes scrollDown {
+    0%   { transform: translateX(-50%) translateY(0); }
+    100% { transform: translateX(-50%) translateY(calc(-50%)); }
+  }
 
+  .tile {
+    width: var(--tile);
+    height: var(--tile);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ddd9d2;
+    /* Each tile is its own compositing layer — prevents the whole
+       grid repainting when one image loads */
+    contain: strict;
+  }
+  .tile img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    /* decode off main thread */
+    decoding: async;
+    /* only load when near viewport */
+    loading: lazy;
+  }
 
+  /* Top + bottom fades to mask the scroll edges */
+  .fade {
+    position: absolute;
+    left: 0; right: 0;
+    height: 120px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .fade-top {
+    top: 0;
+    background: linear-gradient(to bottom, #f0ede8 0%, transparent 100%);
+  }
+  .fade-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, #f0ede8 0%, transparent 100%);
+  }
 
-          
-    </body>
+  /* Pause on hover for accessibility */
+  .waterfall:hover .waterfall-track {
+    animation-play-state: paused;
+  }
+</style>
+</head>
+<body>
+
+  <a class="back" href="../index.html">home</a>
+
+  <!-- PROJECT BUTTONS -->
+  <nav class="project-nav">
+    <a class="project-btn" href="toastworks.html">
+      <img src="../assets/toastworks.PNG" alt="Toastworks" loading="eager">
+    </a>
+    <a class="project-btn" href="eyetoeye.html">
+      <img src="../assets/eyetoeye.PNG" alt="Eye to Eye" loading="eager">
+    </a>
+    <a class="project-btn" href="sustainable.html">
+      <img src="../assets/sustainable.PNG" alt="Sustainable" loading="eager">
+    </a>
+    <a class="project-btn" href="meatball.html">
+      <img src="../assets/meatball.PNG" alt="Meatball" loading="eager">
+    </a>
+  </nav>
+
+  <!-- WATERFALL -->
+  <main class="waterfall">
+    <div class="waterfall-track" id="track"></div>
+    <div class="fade fade-top"></div>
+    <div class="fade fade-bottom"></div>
+  </main>
+
+<script>
+  (() => {
+    const track = document.getElementById('track');
+    const COUNT = 49;
+
+    // Build tiles for one set
+    const makeTiles = () => {
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < COUNT; i++) {
+        const div = document.createElement('div');
+        div.className = 'tile';
+        const img = document.createElement('img');
+        img.src = `../assets/sketches/sketch${i + 1}.jpg`;
+        img.alt = '';
+        img.decoding = 'async';
+        img.loading = 'lazy';
+        div.appendChild(img);
+        frag.appendChild(div);
+      }
+      return frag;
+    };
+
+    // Two identical sets for seamless loop
+    track.appendChild(makeTiles());
+    track.appendChild(makeTiles());
+
+    /*
+      Sync the animation duration to the actual content height
+      so the scroll speed stays consistent regardless of tile count.
+      We wait one frame for layout, then measure.
+    */
+    requestAnimationFrame(() => {
+      const totalH = track.scrollHeight;
+      const halfH  = totalH / 2;
+      // ~80px per second feels natural
+      const dur = Math.round(halfH / 80);
+      track.style.animationDuration = dur + 's';
+    });
+  })();
+</script>
+</body>
 </html>
