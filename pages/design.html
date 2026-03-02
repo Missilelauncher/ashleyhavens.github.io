@@ -1,9 +1,231 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        
-    </head>
-    <body>
-        i do not say design
-    </body>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design — Ashley Havens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root { --pink: #f03e8e; }
+
+  html, body {
+    width: 100%;
+    background: #0e0e0e;
+    color: #fff;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    cursor: crosshair;
+    overflow-x: hidden;
+  }
+
+  .back {
+    position: fixed;
+    top: 22px; left: 28px;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: #555;
+    z-index: 100;
+    transition: color 0.2s;
+  }
+  .back:hover { color: #fff; }
+  .back::before { content: '← '; }
+
+  /* ── BIG TITLE MARQUEE ── */
+  .marquee-wrap {
+    overflow: hidden;
+    padding: 100px 0 60px;
+    border-bottom: 1px solid #222;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 60px;
+    white-space: nowrap;
+    animation: marquee 18s linear infinite;
+    will-change: transform;
+  }
+  .marquee-track span {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(52px, 8vw, 108px);
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px #333;
+    flex-shrink: 0;
+  }
+  .marquee-track span.filled {
+    color: #fff;
+    -webkit-text-stroke: 0;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── GALLERY ── */
+  .gallery {
+    padding: 80px 60px 120px;
+    display: grid;
+    /* Masonry-ish: alternating wide + narrow columns */
+    grid-template-columns: 2fr 1fr 1.5fr;
+    grid-auto-rows: 280px;
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .gitem {
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: #1a1a1a;
+    cursor: crosshair;
+  }
+
+  /* Layout variants */
+  .gitem.tall   { grid-row: span 2; }
+  .gitem.wide   { grid-column: span 2; }
+  .gitem.full   { grid-column: span 3; grid-row: span 1; height: 340px; }
+
+  .gitem img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94),
+                filter 0.4s ease;
+    filter: grayscale(20%);
+  }
+  .gitem:hover img {
+    transform: scale(1.04);
+    filter: grayscale(0%);
+  }
+
+  /* Caption overlay */
+  .gitem-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 40px 20px 18px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .gitem:hover .gitem-caption { opacity: 1; }
+  .gitem-caption .cat {
+    font-size: 0.55rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .gitem-caption .ttl {
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: #fff;
+  }
+
+  /* Pink accent number labels */
+  .gitem-num {
+    position: absolute;
+    top: 14px; left: 16px;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--pink);
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .gitem:hover .gitem-num { opacity: 1; }
+
+  /* ── BOTTOM STRIP ── */
+  .bottom-strip {
+    border-top: 1px solid #222;
+    padding: 32px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bottom-strip p {
+    font-size: 0.65rem;
+    color: #444;
+    letter-spacing: 0.06em;
+  }
+  .bottom-strip a {
+    font-size: 0.65rem;
+    color: var(--pink);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: opacity 0.2s;
+  }
+  .bottom-strip a:hover { opacity: 0.7; }
+</style>
+</head>
+<body>
+
+  <a class="back" href="../index.html">home</a>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="filled">DESIGN</span>
+      <span>DESIGN</span>
+      <span class="filled">DESIGN</span>
+      <span>DESIGN</span>
+      <span class="filled">DESIGN</span>
+      <span>DESIGN</span>
+      <!-- duplicate for seamless loop -->
+      <span class="filled">DESIGN</span>
+      <span>DESIGN</span>
+      <span class="filled">DESIGN</span>
+      <span>DESIGN</span>
+      <span class="filled">DESIGN</span>
+      <span>DESIGN</span>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="gallery" id="gallery"></div>
+
+  <div class="bottom-strip">
+    <p>Selected works — Ashley Havens</p>
+    <a href="contact.html">get in touch →</a>
+  </div>
+
+<script>
+  // Gallery items — using sketch assets as placeholders for your actual design work
+  // Replace src values with your real design imagery
+  const ITEMS = [
+    { src:'../assets/toastworks.PNG', cat:'Brand Identity', ttl:'Toastworks', cls:'tall' },
+    { src:'../assets/sketches/sketch1.jpg',  cat:'Sketches',       ttl:'Process Work', cls:'' },
+    { src:'../assets/sketches/sketch2.jpg',  cat:'Illustration',   ttl:'Visual Systems', cls:'' },
+    { src:'../assets/eyetoeye.PNG',  cat:'Experience Design', ttl:'Seeing Eye to Eye', cls:'wide' },
+    { src:'../assets/sketches/sketch3.jpg',  cat:'Typography',     ttl:'Type Studies', cls:'tall' },
+    { src:'../assets/sketches/sketch4.jpg',  cat:'Color',          ttl:'Palette Exploration', cls:'' },
+    { src:'../assets/sustainable.PNG', cat:'Campaign',       ttl:'Sustainable', cls:'' },
+    { src:'../assets/sketches/sketch5.jpg',  cat:'Editorial',      ttl:'Layout Studies', cls:'wide' },
+    { src:'../assets/meatball.PNG',  cat:'Packaging',       ttl:'Meatball', cls:'' },
+    { src:'../assets/sketches/sketch6.jpg',  cat:'Process',        ttl:'Concept Development', cls:'' },
+    { src:'../assets/sketches/sketch7.jpg',  cat:'UI/UX',          ttl:'Digital Interfaces', cls:'tall' },
+    { src:'../assets/sketches/sketch8.jpg',  cat:'Print',          ttl:'Print Collateral', cls:'' },
+    { src:'../assets/sketches/sketch9.jpg',  cat:'Branding',       ttl:'Identity Systems', cls:'' },
+  ];
+
+  const gallery = document.getElementById('gallery');
+  ITEMS.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = `gitem ${item.cls}`;
+    div.innerHTML = `
+      <span class="gitem-num">0${i+1}</span>
+      <img src="${item.src}" alt="${item.ttl}" loading="lazy">
+      <div class="gitem-caption">
+        <div class="cat">${item.cat}</div>
+        <div class="ttl">${item.ttl}</div>
+      </div>
+    `;
+    gallery.appendChild(div);
+  });
+</script>
+</body>
 </html>

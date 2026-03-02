@@ -10,20 +10,19 @@
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+  :root { --pink: #f03e8e; }
+
   html, body {
-    width: 100%;
-    height: 100%;
-    /* dot grid paper background */
+    width: 100%; height: 100%;
     background-color: #fff;
-    background-image: radial-gradient(circle, #d0d0d0 1px, transparent 1px);
-    background-size: 22px 22px;
+    background-image: radial-gradient(circle, #d4d4d4 1px, transparent 1px);
+    background-size: 20px 20px;
     color: #111;
     font-family: 'DM Sans', system-ui, sans-serif;
     cursor: crosshair;
-    overflow: hidden; /* auto-scroll handles movement, no manual scroll */
+    overflow: hidden;
   }
 
-  /* ── BACK ── */
   .back {
     position: fixed;
     top: 22px; left: 28px;
@@ -37,20 +36,18 @@
   .back:hover { color: #111; }
   .back::before { content: '← '; }
 
-  /* ── VIEWPORT WINDOW — fixed, clips the scrolling board ── */
+  /* ── VIEWPORT ── */
   .viewport {
     position: fixed;
     inset: 0;
     overflow: hidden;
   }
 
-  /* ── BOARD: the tall canvas that moves upward ── */
+  /* ── BOARD ── */
   .board {
     position: absolute;
     width: 100%;
-    /* height set by JS after placing all items */
     top: 0; left: 0;
-    /* GPU-composited upward scroll */
     will-change: transform;
   }
 
@@ -64,61 +61,60 @@
   }
   .strings-svg path {
     fill: none;
-    stroke: #f03e8e; /* homepage pink */
+    stroke: var(--pink);
     stroke-width: 1px;
-    opacity: 0.55;
+    opacity: 0.5;
   }
 
-  /* ── SKETCH CARDS — semi-transparent portrait tiles ── */
+  /* ── SKETCH CARDS ── */
   .card {
     position: absolute;
-    width: 130px;
-    height: 173px; /* 3:4 */
+    width: 105px;
+    height: 140px;
     border-radius: 3px;
     overflow: hidden;
     opacity: 0.5;
     z-index: 2;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     will-change: transform;
   }
   .card img {
     width: 100%; height: 100%;
     object-fit: cover;
-    transform: scale(1.08); /* slight crop/zoom */
+    transform: scale(1.08);
     display: block;
   }
 
-  /* ── PROJECT CARDS — full PNGs, natural size, opaque, clickable ── */
+  /* ── PROJECT CARDS ── */
   .project-card {
     position: absolute;
-    /* no fixed size — let the PNG be its natural size, just cap it */
-    max-width: 220px;
+    max-width: 260px;
     opacity: 1;
     z-index: 10;
     cursor: pointer;
-    transition: transform 0.28s cubic-bezier(.34,1.56,.64,1),
-                filter 0.2s ease;
+    transition: transform 0.28s cubic-bezier(.34,1.56,.64,1), filter 0.2s;
     will-change: transform;
     text-decoration: none;
     display: block;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,0.12));
   }
   .project-card:hover {
-    transform: var(--base-rot) scale(1.07) !important;
-    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.18));
+    transform: var(--base-rot) scale(1.08) !important;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
     z-index: 20;
   }
   .project-card img {
-    width: 100%;
-    height: auto;
+    width: 100%; height: auto;
     display: block;
-    /* no border-radius, no overflow crop — true PNG with transparency */
   }
 
-  /* ── PROJECT OVERLAY ── */
+  /* ══════════════════════════════════════
+     PROJECT DASHBOARD OVERLAY
+  ══════════════════════════════════════ */
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255,255,255,0.96);
+    background: rgba(0,0,0,0.35);
     z-index: 200;
     display: flex;
     align-items: center;
@@ -126,61 +122,171 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+    backdrop-filter: blur(3px);
   }
   .overlay.open {
     opacity: 1;
     pointer-events: all;
   }
-  .overlay-inner {
-    max-width: 520px;
-    width: 90%;
-    padding: 48px 40px;
+
+  .dashboard {
     background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    width: min(900px, 94vw);
+    max-height: 88vh;
+    border-radius: 16px;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.18);
     position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
   }
-  .overlay-inner h2 {
-    font-size: 1.4rem;
-    font-weight: 500;
-    margin-bottom: 12px;
-    letter-spacing: -0.02em;
-  }
-  .overlay-inner p {
-    font-size: 0.82rem;
-    font-weight: 300;
-    line-height: 1.85;
-    color: #444;
-  }
-  .overlay-close {
+
+  /* Close */
+  .dash-close {
     position: absolute;
-    top: 18px; right: 20px;
-    font-size: 1.1rem;
+    top: 16px; right: 20px;
+    font-size: 1rem;
     cursor: pointer;
     color: #aaa;
     background: none;
     border: none;
+    z-index: 10;
     line-height: 1;
     transition: color 0.2s;
   }
-  .overlay-close:hover { color: #111; }
+  .dash-close:hover { color: #111; }
+
+  /* Header — full width */
+  .dash-header {
+    grid-column: 1 / -1;
+    padding: 36px 40px 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .dash-header .tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pink);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .dash-header h2 {
+    font-size: 1.8rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+  }
+  .dash-header .date {
+    font-size: 0.7rem;
+    color: #aaa;
+    letter-spacing: 0.04em;
+  }
+
+  /* Left col — gallery */
+  .dash-gallery {
+    padding: 28px 20px 28px 40px;
+    border-right: 1px solid #f0f0f0;
+  }
+  .dash-gallery .gallery-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #bbb;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .gallery-grid figure {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  .gallery-grid figure:first-child {
+    grid-column: 1 / -1; /* hero image full width */
+  }
+  .gallery-grid figure img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    aspect-ratio: 4/3;
+  }
+  .gallery-grid figure:first-child img {
+    aspect-ratio: 16/9;
+  }
+  .gallery-grid figcaption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.5));
+    color: #fff;
+    font-size: 0.58rem;
+    padding: 16px 10px 8px;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .gallery-grid figure:hover figcaption { opacity: 1; }
+
+  /* Right col — details */
+  .dash-details {
+    padding: 28px 40px 28px 28px;
+  }
+  .wwh-block {
+    margin-bottom: 22px;
+  }
+  .wwh-block:last-child { margin-bottom: 0; }
+  .wwh-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--pink);
+    margin-bottom: 6px;
+  }
+  .wwh-block p {
+    font-size: 0.78rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: #333;
+  }
+
+  /* Divider between wwh blocks */
+  .wwh-block + .wwh-block {
+    padding-top: 18px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  /* Scrollbar styling for dashboard */
+  .dashboard::-webkit-scrollbar { width: 4px; }
+  .dashboard::-webkit-scrollbar-track { background: transparent; }
+  .dashboard::-webkit-scrollbar-thumb { background: #eee; border-radius: 2px; }
 </style>
 </head>
 <body>
 
   <a class="back" href="../index.html">home</a>
 
-  <!-- PROJECT DESCRIPTION OVERLAY -->
   <div class="overlay" id="overlay">
-    <div class="overlay-inner">
-      <button class="overlay-close" id="overlay-close">✕</button>
-      <h2 id="overlay-title"></h2>
-      <p id="overlay-desc"></p>
+    <div class="dashboard" id="dashboard">
+      <button class="dash-close" id="dash-close">✕</button>
+      <div class="dash-header">
+        <div class="tag" id="dash-tag">Project</div>
+        <h2 id="dash-title"></h2>
+        <div class="date" id="dash-date"></div>
+      </div>
+      <div class="dash-gallery">
+        <div class="gallery-label">Gallery</div>
+        <div class="gallery-grid" id="dash-gallery"></div>
+      </div>
+      <div class="dash-details" id="dash-details"></div>
     </div>
   </div>
 
-  <!-- VIEWPORT + BOARD -->
   <div class="viewport">
     <div class="board" id="board">
       <svg class="strings-svg" id="strings"></svg>
@@ -188,208 +294,235 @@
   </div>
 
 <script>
-  // ── PROJECT DATA ──
   const PROJECTS = [
     {
       slug: 'toastworks',
       img: '../assets/toastworks.PNG',
       title: 'Toastworks',
-      desc: 'A branding and visual identity project exploring the ritual of morning routines through warm, tactile design systems.'
+      date: 'Jan 2025 — Present',
+      tag: 'Social Design · d.school',
+      gallery: [
+        { src: '../assets/toastworks.PNG', caption: 'Brand identity overview' },
+        { src: '../assets/sketches/sketch1.jpg', caption: 'Early concept sketches' },
+        { src: '../assets/sketches/sketch2.jpg', caption: 'Visual system explorations' },
+        { src: '../assets/sketches/sketch3.jpg', caption: 'Event collateral' },
+        { src: '../assets/sketches/sketch4.jpg', caption: 'Toast Bar setup' },
+      ],
+      what: 'A Stanford d.school-affiliated project merging food and human connection through interactive social experiences at pop-up events.',
+      why: 'We believe that shared rituals — like making toast together — can dissolve social barriers and spark genuine relationship-building between strangers on campus.',
+      how: 'Co-launched the experience by designing the brand identity, facilitating relationship-building activities, and running the Toast Bar at Satellite Session pop-up events across Stanford.'
     },
     {
       slug: 'eyetoeye',
       img: '../assets/eyetoeye.PNG',
-      title: 'Eye to Eye',
-      desc: 'An editorial design project about perspective and empathy, using layered typography and collage to create visual dialogue.'
+      title: 'Seeing Eye to Eye',
+      date: 'Nov 2025',
+      tag: 'Experience Design · DESIGN 1',
+      gallery: [
+        { src: '../assets/eyetoeye.PNG', caption: 'Final exhibition installation' },
+        { src: '../assets/sketches/sketch5.jpg', caption: 'Research synthesis map' },
+        { src: '../assets/sketches/sketch6.jpg', caption: 'Prototype iterations' },
+        { src: '../assets/sketches/sketch7.jpg', caption: 'User testing sessions' },
+        { src: '../assets/sketches/sketch8.jpg', caption: 'Final prototype' },
+      ],
+      what: 'A conversation-based campus experience showcasing how empathy improves the quality and safety of cross-political conversations.',
+      why: 'In a polarized campus environment, we sought to create a tangible, low-stakes space where students could experience the difference that genuine listening makes in difficult dialogue.',
+      how: 'Led research, synthesis, and prototyping for the installation. Conducted user testing, iterated on conversation prompts and physical space design, and presented at the DESIGN 1 end-of-quarter showcase.'
     },
     {
       slug: 'sustainable',
       img: '../assets/sustainable.PNG',
       title: 'Sustainable',
-      desc: 'A concept campaign for sustainable living — clean systems, earth tones, and data-driven visual storytelling.'
+      date: '2024',
+      tag: 'Campaign Design',
+      gallery: [
+        { src: '../assets/sustainable.PNG', caption: 'Campaign hero visual' },
+        { src: '../assets/sketches/sketch9.jpg',  caption: 'Brand color explorations' },
+        { src: '../assets/sketches/sketch10.jpg', caption: 'Data visualization concepts' },
+        { src: '../assets/sketches/sketch11.jpg', caption: 'Print collateral' },
+        { src: '../assets/sketches/sketch12.jpg', caption: 'Digital assets' },
+      ],
+      what: 'A concept campaign for sustainable living using clean design systems, earth tones, and data-driven visual storytelling.',
+      why: 'Sustainability communication is often either alarmist or dry — this project explored how design can make environmental data feel urgent yet approachable.',
+      how: 'Developed a full visual identity system including typography, color palette, iconography, and a suite of print and digital campaign materials.'
     },
     {
       slug: 'meatball',
       img: '../assets/meatball.PNG',
       title: 'Meatball',
-      desc: 'A playful packaging and identity project celebrating the unexpected joy of comfort food culture.'
+      date: '2024',
+      tag: 'Packaging · Brand Identity',
+      gallery: [
+        { src: '../assets/meatball.PNG', caption: 'Packaging final design' },
+        { src: '../assets/sketches/sketch13.jpg', caption: 'Early ideation' },
+        { src: '../assets/sketches/sketch14.jpg', caption: 'Typography explorations' },
+        { src: '../assets/sketches/sketch15.jpg', caption: 'Color studies' },
+        { src: '../assets/sketches/sketch16.jpg', caption: 'Mockup photography' },
+      ],
+      what: 'A playful packaging and identity project celebrating the unexpected joy of comfort food culture through bold, unapologetic design.',
+      why: 'Food packaging design often takes itself too seriously. This project leaned into maximalist joy, nostalgia, and the specific delight of a perfect meatball.',
+      how: 'Designed the full packaging system including structural dielines, illustration, typography, and brand guidelines. Created mockup photography for presentation.'
     }
   ];
 
   const SKETCH_COUNT = 49;
-  const CARD_W  = 130;
-  const CARD_H  = 173;
-  const PROJ_W  = 220; /* max-width for project PNGs */
-  const PROJ_H  = 220; /* approx collision height */
-  const MARGIN  = 60;
-  const VH      = window.innerHeight;
-  const VW      = window.innerWidth;
+  const CARD_W  = 105, CARD_H = 140;
+  const PROJ_W  = 260;
+  const MARGIN  = 50;
+  const VH = window.innerHeight, VW = window.innerWidth;
+  /* Compact: only 2× viewport height — cards dense, never barren */
+  const BOARD_H = VH * 2.8;
 
-  /* Board is 3× viewport height — enough to scroll slowly through */
-  const BOARD_H = VH * 6;
-
-  const board  = document.getElementById('board');
-  const svgEl  = document.getElementById('strings');
+  const board   = document.getElementById('board');
+  const svgEl   = document.getElementById('strings');
   const overlay = document.getElementById('overlay');
-  const oTitle  = document.getElementById('overlay-title');
-  const oDesc   = document.getElementById('overlay-desc');
-  const oClose  = document.getElementById('overlay-close');
 
   board.style.height = BOARD_H + 'px';
 
-  // ── SEEDED PSEUDO-RANDOM ──
-  let seed = 37;
-  const rand = (min, max) => {
-    seed = (seed * 16807) % 2147483647;
-    return min + (seed / 2147483647) * (max - min);
-  };
+  let seed = 91;
+  const rand = (a, b) => { seed = (seed * 16807) % 2147483647; return a + (seed/2147483647)*(b-a); };
 
-  // ── COLLISION ──
   const placed = [];
-  const fits = (x, y, w, h, pad = 20) =>
-    placed.every(p =>
-      x + w + pad < p.x || x > p.x + p.w + pad ||
-      y + h + pad < p.y || y > p.y + p.h + pad
-    );
-
-  const placeItem = (w, h, yMin, yMax, attempts = 100) => {
-    for (let i = 0; i < attempts; i++) {
-      const x = rand(MARGIN, VW - w - MARGIN);
-      const y = rand(yMin, yMax);
-      if (fits(x, y, w, h)) { placed.push({x,y,w,h}); return {x,y}; }
+  const fits = (x,y,w,h,pad=14) => placed.every(p =>
+    x+w+pad < p.x || x > p.x+p.w+pad || y+h+pad < p.y || y > p.y+p.h+pad);
+  const place = (w,h,y0,y1,tries=120) => {
+    for (let i=0;i<tries;i++){
+      const x=rand(MARGIN,VW-w-MARGIN), y=rand(y0,y1);
+      if(fits(x,y,w,h)){placed.push({x,y,w,h});return{x,y};}
     }
-    const x = rand(MARGIN, VW - w - MARGIN);
-    const y = rand(yMin, yMax);
-    placed.push({x,y,w,h}); return {x,y};
+    const x=rand(MARGIN,VW-w-MARGIN),y=rand(y0,y1);
+    placed.push({x,y,w,h});return{x,y};
   };
 
-  // ── PLACE SKETCH CARDS ──
-  const bandH = (BOARD_H - 200) / SKETCH_COUNT;
-  const sketchPins = []; // top-center pin points for string attachment
-
-  for (let i = 0; i < SKETCH_COUNT; i++) {
-    const yMin = 80 + i * bandH;
-    const yMax = Math.min(yMin + bandH * 1.5, BOARD_H - CARD_H - 80);
-    const pos  = placeItem(CARD_W, CARD_H, yMin, yMax);
-    const rot  = rand(-9, 9);
-    sketchPins.push({ cx: pos.x + CARD_W / 2, cy: pos.y + 8 });
-
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.style.cssText = `left:${pos.x}px;top:${pos.y}px;transform:rotate(${rot}deg)`;
-
-    const img = document.createElement('img');
-    img.src      = `../assets/sketches/sketch${i+1}.jpg`;
-    img.alt      = '';
-    img.loading  = 'lazy';
-    img.decoding = 'async';
-    div.appendChild(img);
-    board.appendChild(div);
+  /* ── sketch cards: distributed in dense bands ── */
+  const bandH = (BOARD_H - 100) / SKETCH_COUNT;
+  const sketchPins = [];
+  for (let i=0;i<SKETCH_COUNT;i++){
+    const y0=60+i*bandH, y1=Math.min(y0+bandH*1.6, BOARD_H-CARD_H-40);
+    const pos=place(CARD_W,CARD_H,y0,y1), rot=rand(-10,10);
+    sketchPins.push({cx:pos.x+CARD_W/2, cy:pos.y+10});
+    const d=document.createElement('div');
+    d.className='card';
+    d.style.cssText=`left:${pos.x}px;top:${pos.y}px;transform:rotate(${rot}deg)`;
+    const img=document.createElement('img');
+    img.src=`../assets/sketches/sketch${i+1}.jpg`;
+    img.alt=''; img.loading='lazy'; img.decoding='async';
+    d.appendChild(img); board.appendChild(d);
   }
 
-  // ── PLACE PROJECT CARDS ──
-  const projStep = BOARD_H / (PROJECTS.length + 1);
+  /* ── project cards ── */
+  const projStep = BOARD_H / (PROJECTS.length+1);
   const projPins = [];
-
-  PROJECTS.forEach((proj, pi) => {
-    const yTarget = projStep * (pi + 1);
-    const pos = placeItem(PROJ_W, PROJ_H, yTarget - 200, yTarget + 200);
-    const rot = rand(-6, 6);
-    projPins.push({ cx: pos.x + PROJ_W / 2, cy: pos.y + 10 });
-
-    const a = document.createElement('a');
-    a.className = 'project-card';
-    a.href      = '#';
-    a.style.cssText = `left:${pos.x}px;top:${pos.y}px;transform:rotate(${rot}deg)`;
-    a.style.setProperty('--base-rot', `rotate(${rot}deg)`);
-
-    const img = document.createElement('img');
-    img.src     = proj.img;
-    img.alt     = proj.title;
-    img.loading = 'eager';
+  PROJECTS.forEach((proj,pi)=>{
+    const yT=projStep*(pi+1);
+    const pos=place(PROJ_W,PROJ_W,yT-220,yT+220), rot=rand(-5,5);
+    projPins.push({cx:pos.x+PROJ_W/2, cy:pos.y+12});
+    const a=document.createElement('a');
+    a.className='project-card'; a.href='#';
+    a.style.cssText=`left:${pos.x}px;top:${pos.y}px;transform:rotate(${rot}deg)`;
+    a.style.setProperty('--base-rot',`rotate(${rot}deg)`);
+    const img=document.createElement('img');
+    img.src=proj.img; img.alt=proj.title; img.loading='eager';
     a.appendChild(img);
-
-    a.addEventListener('click', e => {
+    a.addEventListener('click', e=>{
       e.preventDefault();
-      oTitle.textContent = proj.title;
-      oDesc.textContent  = proj.desc;
-      overlay.classList.add('open');
+      openDash(proj);
     });
-
     board.appendChild(a);
   });
 
-  // ── DRAW PINK STRINGS ──
-  svgEl.setAttribute('viewBox', `0 0 ${VW} ${BOARD_H}`);
-  svgEl.setAttribute('width',  VW);
-  svgEl.setAttribute('height', BOARD_H);
-
-  // Each project pin connects to its ~5 nearest sketch pins
-  projPins.forEach(proj => {
-    const sorted = sketchPins
-      .map(s => ({ ...s, dist: Math.hypot(s.cx - proj.cx, s.cy - proj.cy) }))
-      .sort((a,b) => a.dist - b.dist)
-      .slice(0, 5);
-
-    sorted.forEach(s => {
-      const mx    = (s.cx + proj.cx) / 2;
-      const droop = Math.abs(s.cy - proj.cy) * 0.3 + 25;
-      const my    = Math.min(s.cy, proj.cy) + droop;
-
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', `M ${proj.cx} ${proj.cy} Q ${mx} ${my} ${s.cx} ${s.cy}`);
-      svgEl.appendChild(path);
+  /* ── strings ── */
+  svgEl.setAttribute('viewBox',`0 0 ${VW} ${BOARD_H}`);
+  svgEl.setAttribute('width',VW); svgEl.setAttribute('height',BOARD_H);
+  projPins.forEach(proj=>{
+    const sorted=[...sketchPins]
+      .map(s=>({...s,dist:Math.hypot(s.cx-proj.cx,s.cy-proj.cy)}))
+      .sort((a,b)=>a.dist-b.dist).slice(0,5);
+    sorted.forEach(s=>{
+      const mx=(s.cx+proj.cx)/2;
+      const droop=Math.abs(s.cy-proj.cy)*0.28+22;
+      const my=Math.min(s.cy,proj.cy)+droop;
+      const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d',`M ${proj.cx} ${proj.cy} Q ${mx} ${my} ${s.cx} ${s.cy}`);
+      svgEl.appendChild(p);
     });
   });
 
-  // ── AUTO-SCROLL ──
-  // Smoothly scroll the board upward at ~40px/sec.
-  // When we reach the bottom, jump back to top (seamless reset).
-  const SCROLL_SPEED = 40; // px per second
-  let scrollY   = 0;
-  let lastTime  = null;
-  let paused    = false;
+  /* ── auto-scroll (down only) ── */
+  const SPEED = 38;
+  let scrollY=0, last=null, userScrolling=false, userTimer=null, paused=false;
 
-  // Pause when overlay is open
-  document.getElementById('overlay').addEventListener('transitionend', () => {
-    paused = overlay.classList.contains('open');
-  });
-
-  const tick = (ts) => {
-    if (!lastTime) lastTime = ts;
-    const dt = (ts - lastTime) / 1000;
-    lastTime = ts;
-
-    if (!paused) {
-      scrollY += SCROLL_SPEED * dt;
-      // reset when we've scrolled past usable content
-      const maxScroll = BOARD_H - VH;
-      if (scrollY >= maxScroll) scrollY = 0;
-      board.style.transform = `translateY(${-scrollY}px)`;
+  const tick = ts => {
+    if(!last) last=ts;
+    const dt=(ts-last)/1000; last=ts;
+    if(!paused && !userScrolling){
+      scrollY+=SPEED*dt;
+      if(scrollY>=BOARD_H-VH) scrollY=0;
     }
-
+    board.style.transform=`translateY(${-scrollY}px)`;
     requestAnimationFrame(tick);
   };
-
   requestAnimationFrame(tick);
 
-  // Allow user to manually scroll (wheel / touch) on top of auto-scroll
-  window.addEventListener('wheel', e => {
-    scrollY = Math.max(0, Math.min(BOARD_H - VH, scrollY + e.deltaY * 0.8));
-  }, { passive: true });
+  const manualScroll = dy => {
+    /* down only — clamp to not go negative (no scrolling up) */
+    scrollY = Math.max(0, Math.min(BOARD_H-VH, scrollY+dy));
+    userScrolling=true;
+    clearTimeout(userTimer);
+    userTimer=setTimeout(()=>{ userScrolling=false; },1800);
+  };
 
-  let touchStartY = 0;
-  window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
-  window.addEventListener('touchmove', e => {
-    const dy = touchStartY - e.touches[0].clientY;
-    scrollY = Math.max(0, Math.min(BOARD_H - VH, scrollY + dy));
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
+  window.addEventListener('wheel', e=>{ if(e.deltaY>0) manualScroll(e.deltaY*0.8); },{passive:true});
+  let tY=0;
+  window.addEventListener('touchstart',e=>{tY=e.touches[0].clientY;},{passive:true});
+  window.addEventListener('touchmove',e=>{
+    const dy=tY-e.touches[0].clientY; if(dy>0) manualScroll(dy); tY=e.touches[0].clientY;
+  },{passive:true});
 
-  // ── OVERLAY CLOSE ──
-  oClose.addEventListener('click', () => { overlay.classList.remove('open'); paused = false; });
-  overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.classList.remove('open'); paused = false; } });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { overlay.classList.remove('open'); paused = false; } });
+  /* ── dashboard ── */
+  const openDash = proj => {
+    document.getElementById('dash-tag').textContent   = proj.tag;
+    document.getElementById('dash-title').textContent = proj.title;
+    document.getElementById('dash-date').textContent  = proj.date;
+
+    // Gallery
+    const g = document.getElementById('dash-gallery');
+    g.innerHTML = '';
+    proj.gallery.forEach(item=>{
+      const fig=document.createElement('figure');
+      const img=document.createElement('img');
+      img.src=item.src; img.alt=item.caption; img.loading='lazy';
+      const cap=document.createElement('figcaption');
+      cap.textContent=item.caption;
+      fig.appendChild(img); fig.appendChild(cap);
+      g.appendChild(fig);
+    });
+
+    // WWH
+    const det=document.getElementById('dash-details');
+    det.innerHTML=`
+      <div class="wwh-block">
+        <div class="wwh-label">What</div>
+        <p>${proj.what}</p>
+      </div>
+      <div class="wwh-block">
+        <div class="wwh-label">Why</div>
+        <p>${proj.why}</p>
+      </div>
+      <div class="wwh-block">
+        <div class="wwh-label">How</div>
+        <p>${proj.how}</p>
+      </div>
+    `;
+
+    overlay.classList.add('open');
+    paused=true;
+  };
+
+  const closeDash = () => { overlay.classList.remove('open'); paused=false; };
+  document.getElementById('dash-close').addEventListener('click', closeDash);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) closeDash(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDash(); });
 </script>
 </body>
 </html>

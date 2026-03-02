@@ -28,9 +28,11 @@
     background: #fff;
     z-index: 1000;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
+    gap: 28px;
+    transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1),
                 opacity   0.3s ease 0.18s;
   }
   #loader.leave {
@@ -39,15 +41,40 @@
     pointer-events: none;
   }
 
-  /* Retro chunky spike spinner — SVG teardrops with fully rounded edges */
+  /* Retro spinner below the letters */
   .retro-spinner {
-    width: 62px;
-    height: 62px;
+    width: 48px;
+    height: 48px;
     animation: spin 1s steps(8, end) infinite;
+    opacity: 0.7;
   }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  /* Letter row */
+  .loader-letters {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .loader-letters img {
+    height: 52px;
+    width: auto;
+    /* each letter pulses independently via JS-assigned animation-delay */
+    animation: letterPulse 1.8s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+  @keyframes letterPulse {
+    0%,100% { transform: scale(1);    opacity: 1; }
+    50%     { transform: scale(1.18); opacity: 0.85; }
+  }
+  /* exit: letters pop outward */
+  #loader.leave .loader-letters img {
+    animation: letterPop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes letterPop {
+    0%   { transform: scale(1); opacity: 1; }
+    60%  { transform: scale(1.4); opacity: 0.6; }
+    100% { transform: scale(0); opacity: 0; }
   }
 
   /* ════════════════════════════════════════
@@ -141,7 +168,7 @@
     font-size: 0.6rem;
     font-weight: 300;
     line-height: 1.8;
-    color: #ffffff;
+    color: #1a1a1a;
     z-index: 10;
   }
 
@@ -330,17 +357,22 @@
 <body>
 
   <div id="loader">
-    <!--
-      Each spike = a rounded rectangle (rx for fully rounded ends),
-      narrow at the inner end, wider at the outer — achieved by making
-      each spike an rx-rounded rect, placed away from center.
-      The outer tip has full rounding, the inner base is also rounded.
-    -->
+    <!-- "now loading" spelled with individual letter PNGs -->
+    <!-- filenames per your spec: n, o-2, w, (space), L, o, A, d, i, n, g -->
+    <div class="loader-letters" id="loader-letters">
+      <img src="assets/letters/n.png"   alt="n">
+      <img src="assets/letters/o-2.png" alt="o">
+      <img src="assets/letters/w.png"   alt="w">
+      <img src="assets/letters/L.png"   alt=" " style="margin-left:14px">
+      <img src="assets/letters/o.png"   alt="o">
+      <img src="assets/letters/A.png"   alt="a">
+      <img src="assets/letters/d.png"   alt="d">
+      <img src="assets/letters/i.png"   alt="i">
+      <img src="assets/letters/n.png"   alt="n">
+      <img src="assets/letters/g.png"   alt="g">
+    </div>
     <svg class="retro-spinner" viewBox="0 0 62 62" xmlns="http://www.w3.org/2000/svg">
-      <!-- spike shape: x=28.5 (center - half width), y=4 (outer tip), width=5, height=14, rx=2.5 fully round -->
-      <!-- but wider at top (outer) than bottom (inner): use a path with rounded ends -->
       <g transform="translate(31,31)">
-        <!-- 0deg -->
         <rect x="-3.5" y="-29" width="7" height="16" rx="3.5" fill="#111" opacity="1"    transform="rotate(0)"/>
         <rect x="-3.5" y="-29" width="7" height="16" rx="3.5" fill="#111" opacity="0.82" transform="rotate(45)"/>
         <rect x="-3.5" y="-29" width="7" height="16" rx="3.5" fill="#111" opacity="0.62" transform="rotate(90)"/>
@@ -380,6 +412,7 @@
     <p class="bio">Ashley Havens is a multidisciplinary designer working across digital, print, and visual systems, with a focus on experimental and concept-driven design.</p>
 
     <!-- TOP CLUSTER -->
+    <div class="obj obj-yoyo"     data-float="3" data-dur="5.5s" data-rot="-2deg"><img src="assets/yoyo.png"      alt="yoyo"     loading="lazy"></div>
     <div class="obj obj-cube"     data-float="1" data-dur="6.5s" data-rot="3deg" ><img src="assets/cube.png"      alt="cube"     loading="lazy"></div>
     <div class="obj obj-scissors" data-float="2" data-dur="7.5s" data-rot="-6deg"><img src="assets/scissors.png"  alt="scissors" loading="lazy"></div>
     <div class="obj obj-8ball"    data-float="3" data-dur="6s"   data-rot="2deg" ><img src="assets/8ball.png"     alt="8ball"    loading="lazy"></div>
@@ -400,6 +433,11 @@
   </div>
 
 <script>
+  // Stagger letter pulse animations
+  document.querySelectorAll('.loader-letters img').forEach((img, i) => {
+    img.style.animationDelay = (i * 0.12) + 's';
+  });
+
   // Float animations
   document.querySelectorAll('.obj').forEach((el, i) => {
     el.style.setProperty('--rot', el.dataset.rot || '0deg');
