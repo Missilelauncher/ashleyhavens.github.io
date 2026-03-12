@@ -209,7 +209,8 @@
 
   /* TOP CLUSTER — bigger, closer to reference scale */
   .obj-scissors { left: 40%;  bottom: 17%;   width: clamp(350px,  11vw, 152px); }
-  .obj-8ball    { left: 40%;  bottom: 4%;   width: clamp(300px, 13vw, 180px); }
+  .obj-cube { left: 40%;  bottom: 17%;   width: clamp(350px,  11vw, 152px); }
+  .obj-8ball    { left: 5%;  top: 4%;   width: clamp(300px, 13vw, 180px); }
 
   /* BOTTOM CLUSTER — much bigger, dense like reference */
   .obj-globe    { left:  1%;  bottom: -3%; width: clamp(385px, 19vw, 260px); z-index:8; }
@@ -304,8 +305,8 @@
     /* Loop graphic: big, top-left bleed */
     .deco-graphic {
       left: -9%;
-      top: -6%;
-      width: clamp(200px, 70vw, 340px);
+      top: -7%;
+      width: clamp(230px, 70vw, 340px);
       z-index: 9;
     }
 
@@ -317,6 +318,7 @@
 
     /* TOP */
     .obj-scissors { left: 66%;  top:  3%;  width: 30vw; }
+    .obj-cube { left: 50%;  top:  3%;  width: 30vw; }
     .obj-8ball    { left: 74%;  top:  8%;  width: 19vw; }
 
     /* BOTTOM — spread across full width, pushed up since nav takes bottom */
@@ -391,6 +393,7 @@
 
     <!-- TOP CLUSTER -->
     <div class="obj obj-scissors" data-float="2" data-dur="7.5s" data-rot="120deg"><img src="assets/scissors.png"  alt="scissors" loading="lazy"></div>
+    <div class="obj obj-cube" data-float="2" data-dur="7.5s" data-rot="2deg"><img src="assets/cube.png"  alt="cube" loading="lazy"></div>
     <div class="obj obj-8ball"    data-float="3" data-dur="6s"   data-rot="2deg" ><img src="assets/8ball.png"     alt="8ball"    loading="lazy"></div>
 
     <!-- BOTTOM CLUSTER -->
