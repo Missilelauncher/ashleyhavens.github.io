@@ -213,14 +213,14 @@
   .obj-8ball    { left: -1%;  top: 20%;   width: clamp(300px, 13vw, 180px); }
 
   /* BOTTOM CLUSTER — much bigger, dense like reference */
-  .obj-globe    { left:  1%;  bottom: -3%; width: clamp(385px, 19vw, 260px); z-index:8; }
+  .obj-globe    { left:  1%;  bottom: 5%; width: clamp(385px, 19vw, 260px); z-index:8; }
   .obj-phone    { left: 31%;  bottom: 14%; width: clamp(300px, 18vw, 245px); z-index:8; }
   .obj-heart    { left: 19%;  bottom:  6%; width: clamp(300px, 13vw, 175px); z-index:9;  }
   .obj-banana   { left: 40%;  bottom:  4%; width: clamp(350px, 17vw, 230px); z-index:9;  }
   .obj-flask    { left: 55%;  bottom: 12%; width: clamp(300px,  12vw, 160px); z-index:9;  }
   .obj-flower   { left:  14.5%;  bottom:  2%; width: clamp(200px, 14vw, 190px); z-index:9;  }
   .obj-ring     { left: 30%;  bottom:  0.3%; width: clamp(160px,   9vw, 125px); z-index:9;  }
-  .obj-gem      { left:  -2%;  bottom:  18%; width: clamp(170px,   8vw, 108px); z-index:10; }
+  .obj-gem      { left:  -2%;  bottom:  12%; width: clamp(170px,   8vw, 108px); z-index:10; }
   .obj-dice     { left: 40%;  bottom:  1.5%; width: clamp(180px,   9vw, 118px); z-index:9;  }
   .obj-worm     { left: 59%;  bottom:  1%; width: clamp(210px, 12vw, 162px); z-index:9;  }
   .obj-bug      { left: 54%;  bottom: 14%; width: clamp(80px,   5vw,  70px); z-index:10; }
@@ -431,7 +431,7 @@
       if (!loader) return;
       loader.classList.add('leave');
       loader.addEventListener('transitionend', () => loader.remove(), { once: true });
-    }, 1000);
+    }, 900);
   });
 </script>
 </body>
