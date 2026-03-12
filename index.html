@@ -397,7 +397,7 @@
     <div class="obj obj-8ball"    data-float="3" data-dur="6s"   data-rot="2deg" ><img src="assets/8ball.png"     alt="8ball"    loading="lazy"></div>
 
     <!-- BOTTOM CLUSTER -->
-    <div class="obj obj-globe"    data-float="2" data-dur="7s"   data-rot="-5deg"><img src="assets/globe.png"     alt="globe"    loading="lazy"></div>
+    <div class="obj obj-globe"    data-float="2" data-dur="7s"   data-rot="-5deg"><img src="assets/globe.png"     alt="globe"    loading="eager"></div>
     <div class="obj obj-phone"    data-float="1" data-dur="5s"   data-rot="4deg" ><img src="assets/phone.png"     alt="phone"    loading="lazy"></div>
     <div class="obj obj-heart"    data-float="3" data-dur="6s"   data-rot="-3deg"><img src="assets/heart.png"     alt="heart"    loading="lazy"></div>
     <div class="obj obj-banana"   data-float="2" data-dur="5.5s" data-rot="2deg" ><img src="assets/bananas.png"   alt="bananas"  loading="lazy"></div>
@@ -431,7 +431,7 @@
       if (!loader) return;
       loader.classList.add('leave');
       loader.addEventListener('transitionend', () => loader.remove(), { once: true });
-    }, 700);
+    }, 1000);
   });
 </script>
 </body>
