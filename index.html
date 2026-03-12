@@ -186,18 +186,10 @@
   .deco-graphic {
     position: absolute;
     left: -5%;
-    top: -2%;
-    width: clamp(800px, 46vw, 620px);
+    top: -10%;
+    width: clamp(900px, 46vw, 620px);
     pointer-events: none;
     z-index: 9;
-  }
-  .deco-leaves {
-    position: absolute;
-    right: 0%;
-    top: 0%;
-    width: clamp(600px, 28vw, 390px);
-    pointer-events: none;
-    z-index: 21; /* above nav */
   }
 
   /* ── FLOATING OBJECTS ── */
@@ -318,14 +310,6 @@
       z-index: 9;
     }
 
-    /* Leaves: top-right, bigger on mobile */
-    .deco-leaves {
-      right: -4%;
-      top: -3%;
-      width: clamp(130px, 42vw, 220px);
-      z-index: 21;
-    }
-
     /* ── MOBILE OBJECT POSITIONS
        Dense collage filling the whole frame.
        Top objects cluster across upper area,
@@ -399,8 +383,6 @@
       <a href="pages/contact.html">contact</a>
     </nav>
 
-    <!-- Leaves on top of nav -->
-    <img class="deco-leaves" src="assets/leaves.png" alt="" loading="eager">
 
     <!-- Name PNG -->
     <img class="name-img" src="assets/ashleyhavens.png" alt="ashley havens">
