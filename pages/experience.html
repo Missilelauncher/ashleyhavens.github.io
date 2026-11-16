@@ -16,8 +16,10 @@
     background: #fff;
     font-family: 'DM Sans', system-ui, sans-serif;
     cursor: none;
-    overflow: hidden;
+    overflow-x: hidden;
   }
+  /* touch screens and keyboards keep a normal cursor */
+  @media (pointer: coarse) { html, body, .folder-item { cursor: auto; } #cursor { display: none; } }
 
   /* ── CUSTOM CURSOR ── */
   #cursor {
@@ -57,14 +59,9 @@
   .back::before { content: '← '; }
 
   /* ── VIEWPORT ── */
-  .viewport { position: fixed; inset: 0; overflow: hidden; }
 
   /* ── BOARD ── */
-  .board {
-    position: absolute;
-    width: 100%; top: 0; left: 0;
-    will-change: transform;
-  }
+  .board { width: 100%; }
 
   /* ── PAGE TITLE ── */
   .page-title {
@@ -85,6 +82,10 @@
     max-width: 780px;
     margin: 0 auto;
     padding: 0 40px 80px;
+  }
+  @media (max-width: 640px) {
+    .folder-grid { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; padding: 0 20px 60px; }
+    .detail-panel { padding: 36px 24px 28px; }
   }
 
   .folder-item {
@@ -177,6 +178,20 @@
     line-height: 1.85; color: #333;
     padding-left: 16px; position: relative;
   }
+  .d-photos {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin-top: 26px;
+  }
+  .d-photos:empty { display: none; }
+  .d-photos img, .d-photos .slot {
+    width: 100%; aspect-ratio: 4/3; object-fit: cover;
+    border-radius: 8px; display: block; background: #f4f4f4;
+  }
+  .d-photos .slot {
+    display: flex; align-items: center; justify-content: center;
+    border: 1px dashed #ddd; color: #c4c4c4;
+    font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+  }
   .detail-panel ul li::before {
     content: '—'; position: absolute; left: 0;
     color: var(--pink); font-weight: 400;
@@ -197,14 +212,13 @@
       <h2 id="d-title"></h2>
       <div class="d-date" id="d-date"></div>
       <ul id="d-bullets"></ul>
+      <div class="d-photos" id="d-photos"></div>
     </div>
   </div>
 
-  <div class="viewport">
-    <div class="board" id="board">
-      <div class="page-title">Experience</div>
-      <div class="folder-grid" id="folder-grid"></div>
-    </div>
+  <div class="board" id="board">
+    <div class="page-title">Experience</div>
+    <div class="folder-grid" id="folder-grid"></div>
   </div>
 
 <script>
@@ -218,18 +232,31 @@
     'hue-rotate(240deg) saturate(1.1)',       // purple
   ];
 
+  // Each folder's details. To add photos, put files in assets/ and list them,
+  // e.g. photos: ['../assets/chaparral-cover.jpg']
+  // Empty photo slots show as dashed boxes while SHOW_PHOTO_SLOTS is true;
+  // set it to false to hide any slots you haven't filled yet.
+  const SHOW_PHOTO_SLOTS = true;
   const ITEMS = [
-    { tag:'Design Project', org:'Toastworks', role:'Co-founder', date:'Jan 2025 — Present',
-      bullets:['Co-launched a Stanford d.school-affiliated project merging food and relationships through interactive social experiences.','Facilitated relationship-building activities and manned the Toast Bar at Satellite Session pop-up events.'] },
-    { tag:'Design Project', org:'Seeing Eye to Eye', role:'Lead Designer', date:'Nov 2025',
-      bullets:['Led research, synthesis, and prototyping for a conversation-based campus experience showcasing how empathy improves the quality and safety of cross-political conversations.','Presented at the DESIGN 1 end-of-quarter showcase.'] },
-    { tag:'Creative Project', org:'Kinda Genius', role:'Co-creator & Designer', date:'Oct 2025 — Present',
+    { tag:'Live Events', org:'Stanford Marching Band', role:'Graphix Lead', date:'Sept 2026 — Present', photos:[],
+      bullets:['Designated script writer, formation and prop designer, and announcer for pregame and halftime shows at football games in Stanford Stadium.','Work alongside Stanford Athletics to approve concepts, create graphics for Jumbotron display, and announce scripts live at games.'] },
+    { tag:'Course Project', org:'DESIGN 121', role:'Team Project Designer', date:'May 2026', photos:[],
+      bullets:['Reimagined the UI of the New York Times website/app to make news more socially engaging for Gen Z while preserving journalistic trust.','Conducted user research and co-creation to design a high-fidelity interactive prototype, receiving project feedback from a NYT associate.'] },
+    { tag:'Live Events', org:'Arbor Live', role:'Marketing Lead', date:'Feb 2026 — Present', photos:[],
+      bullets:['Oversee marketing and visual promotion for live events, including the creation and distribution of event flyers.','Coordinate load-in, setup, and strike while managing audio and lighting for live performances.','Organize and lead biweekly, campus-wide Musician Jams.'] },
+    { tag:'Publication', org:'The Stanford Chaparral', role:'Art Director', date:'Sept 2025 — Present', photos:[],
+      bullets:['Lead visual direction for the third-oldest collegiate humor magazine in the U.S., developing cover illustrations, graphics, and page layouts from idea to quarterly publication.'] },
+    { tag:'Creative Project', org:'Kinda Genius', role:'Co-creator & Designer', date:'Oct 2025 — Present', photos:[],
       bullets:['Co-designing and producing a YouTube series experimenting with long and short-form content formats.','Analyzing (and poking fun at) how people interpret expertise and intelligence online.'] },
-    { tag:'Advocacy', org:'American Cancer Society', role:'CA Legislative Ambassador', date:'Dec 2022 — Present',
+    { tag:'Design Project', org:'Seeing Eye to Eye', role:'Lead Designer', date:'Nov 2025', photos:[],
+      bullets:['Led research, synthesis, and prototyping for a conversation-based campus experience showcasing how empathy improves the quality and safety of cross-political conversations.','Presented at the DESIGN 1 end-of-quarter showcase.'] },
+    { tag:'Design Project', org:'Toastworks', role:'Cofounder / Creative Direction', date:'Jan 2025 — Dec 2025', photos:[],
+      bullets:['Co-launched a Stanford d.school-affiliated project merging food and relationships through interactive social experiences.','Facilitated relationship-building activities and manned the Toast Bar at Satellite Session pop-up events.'] },
+    { tag:'Research', org:'SDSU Research Foundation', role:'Research Assistant', date:'Mar 2023 — Aug 2024', photos:[],
+      bullets:['Oversaw a study in partnership with ATMO® on the development of a personal air monitoring toolkit/mobile application allowing greater public access to air monitoring in indoor and outdoor locations.','Personally engaged with local lawmakers and spoke at public workshops hosted by CalEPA, presenting research and community concerns.'] },
+    { tag:'Advocacy', org:'American Cancer Society', role:'CA Legislative Ambassador', date:'Dec 2022 — Present', photos:[],
       bullets:['Advocated for regional policies and state bills that prioritize human health, especially in light of environmental factors such as poor air or water quality.'] },
-    { tag:'Research', org:'SDSU Research Foundation', role:'Research Assistant', date:'Mar 2023 — Aug 2024',
-      bullets:['Oversaw a study in partnership with ATMO® on the development of a personal air monitoring toolkit/mobile application.','Enabled greater public access to air monitoring in indoor and outdoor locations.'] },
-    { tag:'Internship', org:'Comite Civico Del Valle', role:'Environmental Health Intern', date:'Sept 2022 — Sept 2023',
+    { tag:'Internship', org:'Comite Civico Del Valle', role:'Environmental Health Intern', date:'Sept 2022 — Sept 2023', photos:[],
       bullets:['Advised and mentored a cohort of 12 high school students.','Personally engaged with local lawmakers and spoke at public workshops hosted by CalEPA\'s State Water Resources Control Board.','Presented research and community concerns at state-level hearings.'] }
   ];
 
@@ -243,7 +270,7 @@
     div.style.setProperty('--tint', tint);
     div.innerHTML = `
       <div class="folder-wrap">
-        <img class="folder-img" src="../assets/folder.png" alt="${item.org}" loading="lazy" style="filter:${tint} drop-shadow(0 4px 12px rgba(0,0,0,0.1))">
+        <img class="folder-img" src="../assets/folder.png" alt="${item.org}" loading="lazy">
       </div>
       <div class="folder-label">
         <div class="org">${item.org}</div>
@@ -265,6 +292,11 @@
     document.getElementById('d-title').textContent = item.org;
     document.getElementById('d-date').textContent  = `${item.role}  ·  ${item.date}`;
     document.getElementById('d-bullets').innerHTML = item.bullets.map(b=>`<li>${b}</li>`).join('');
+    const photos = item.photos || [];
+    const slots = SHOW_PHOTO_SLOTS ? Math.max(0, 3 - photos.length) : 0;
+    document.getElementById('d-photos').innerHTML =
+      photos.map(src => `<img src="${src}" alt="${item.org}" loading="lazy">`).join('') +
+      '<div class="slot">photo</div>'.repeat(slots);
     overlay.classList.add('open');
   };
   const closeDetail = () => { overlay.classList.remove('open'); };
@@ -287,41 +319,6 @@
   const hideCursor = () => { cursorEl.style.opacity = '0'; document.body.classList.remove('over-folder'); };
   const showCursor = () => { cursorEl.style.opacity = '1'; };
 
-  // ── AUTO-SCROLL (down only) ──
-  const board    = document.getElementById('board');
-  const VH       = window.innerHeight;
-  const SPEED    = 38;
-  let scrollY    = 0;
-  let last       = null;
-  let userScrolling = false;
-  let userTimer  = null;
-
-  // measure board height after paint
-  let BOARD_H = 0;
-  requestAnimationFrame(() => {
-    BOARD_H = board.scrollHeight;
-    loop(null);
-  });
-
-  const loop = ts => {
-    if (!last) last = ts;
-    const dt = (ts - last) / 1000; last = ts;
-    if (!userScrolling && !overlay.classList.contains('open')) {
-      scrollY += SPEED * dt;
-      if (scrollY >= BOARD_H - VH) scrollY = 0;
-    }
-    board.style.transform = `translateY(${-scrollY}px)`;
-    requestAnimationFrame(loop);
-  };
-
-  // Down-only manual scroll
-  window.addEventListener('wheel', e => {
-    if (e.deltaY <= 0) return; // block scrolling up
-    scrollY = Math.min(BOARD_H - VH, scrollY + e.deltaY * 0.7);
-    userScrolling = true;
-    clearTimeout(userTimer);
-    userTimer = setTimeout(() => { userScrolling = false; }, 1500);
-  }, { passive: true });
 </script>
 </body>
 </html>

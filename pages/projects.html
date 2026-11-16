@@ -20,7 +20,7 @@
     color: #111;
     font-family: 'DM Sans', system-ui, sans-serif;
     cursor: crosshair;
-    overflow: hidden;
+    overflow-x: hidden;
   }
 
   .back {
@@ -37,18 +37,12 @@
   .back::before { content: '← '; }
 
   /* ── VIEWPORT ── */
-  .viewport {
-    position: fixed;
-    inset: 0;
-    overflow: hidden;
-  }
 
   /* ── BOARD ── */
   .board {
-    position: absolute;
+    position: relative;
     width: 100%;
-    top: 0; left: 0;
-    will-change: transform;
+    overflow: clip;
   }
 
   /* ── SVG STRINGS ── */
@@ -107,6 +101,53 @@
     width: 100%; height: auto;
     display: block;
   }
+
+  /* cover for a project that doesn't have its cover image yet */
+  .project-card .cover-slot {
+    width: 260px; aspect-ratio: 1;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 22px; border-radius: 6px;
+    background: repeating-linear-gradient(-45deg, #fff 0 10px, #fdf0f6 10px 20px);
+    border: 1px dashed var(--pink);
+  }
+  .cover-slot b { font-size: 1.2rem; font-weight: 500; letter-spacing: -0.02em; color: #111; }
+  .cover-slot span { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pink); margin-top: 6px; }
+
+  /* ── PROJECT LIST (always visible) ── */
+  .proj-list {
+    position: fixed; top: 18px; right: 22px; z-index: 150;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 1px solid #eee; border-radius: 12px;
+    padding: 14px 18px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .proj-list .label {
+    font-size: 0.55rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: #bbb; margin-bottom: 2px;
+  }
+  .proj-list button {
+    background: none; border: none; padding: 0; cursor: pointer;
+    text-align: left; font: inherit; font-size: 0.78rem; color: #222;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .proj-list button:hover { color: var(--pink); transform: translateX(3px); }
+  @media (max-width: 640px) {
+    .proj-list {
+      top: auto; bottom: 0; left: 0; right: 0; border-radius: 0;
+      border-width: 1px 0 0; flex-direction: row; gap: 16px;
+      overflow-x: auto; padding: 14px 18px; white-space: nowrap;
+    }
+    .proj-list .label { display: none; }
+  }
+
+  /* empty photo slot in a project's gallery */
+  .gallery-grid figure.slot {
+    display: flex; align-items: center; justify-content: center;
+    aspect-ratio: 4/3; border: 1px dashed #ddd; background: #fafafa;
+    color: #c4c4c4; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .gallery-grid figure.slot:first-child { aspect-ratio: 16/9; }
 
   /* ══════════════════════════════════════
      PROJECT DASHBOARD OVERLAY
@@ -261,6 +302,13 @@
     border-top: 1px solid #f0f0f0;
   }
 
+  @media (max-width: 720px) {
+    .dashboard { grid-template-columns: 1fr; }
+    .dash-header { padding: 32px 24px 18px; }
+    .dash-gallery { padding: 22px 24px; border-right: none; border-bottom: 1px solid #f0f0f0; }
+    .dash-details { padding: 22px 24px 28px; }
+  }
+
   /* Scrollbar styling for dashboard */
   .dashboard::-webkit-scrollbar { width: 4px; }
   .dashboard::-webkit-scrollbar-track { background: transparent; }
@@ -287,78 +335,65 @@
     </div>
   </div>
 
-  <div class="viewport">
-    <div class="board" id="board">
-      <svg class="strings-svg" id="strings"></svg>
-    </div>
+  <nav class="proj-list" id="proj-list"><div class="label">projects</div></nav>
+
+  <div class="board" id="board">
+    <svg class="strings-svg" id="strings"></svg>
   </div>
 
 <script>
+  // Projects. `img` is the cover on the board (leave null for a placeholder).
+  // To add documentation, put files in assets/ and list them in `gallery`,
+  // e.g. { src: '../assets/toastworks-event.jpg', caption: 'Toast Bar at Satellite Session' }
+  // Dashed "photo" slots fill the gallery up to 5 while SHOW_PHOTO_SLOTS is true.
+  const SHOW_PHOTO_SLOTS = true;
   const PROJECTS = [
     {
-      slug: 'toastworks',
       img: '../assets/toastworks.PNG',
       title: 'Toastworks',
-      date: 'Jan 2025 — Present',
+      date: 'Jan 2025 — Dec 2025',
       tag: 'Social Design · d.school',
-      gallery: [
-        { src: '../assets/toastworks.PNG', caption: 'Brand identity overview' },
-        { src: '../assets/sketches/sketch1.jpg', caption: 'Early concept sketches' },
-        { src: '../assets/sketches/sketch2.jpg', caption: 'Visual system explorations' },
-        { src: '../assets/sketches/sketch3.jpg', caption: 'Event collateral' },
-        { src: '../assets/sketches/sketch4.jpg', caption: 'Toast Bar setup' },
-      ],
+      gallery: [ { src: '../assets/toastworks.PNG', caption: 'Toastworks' } ],
       what: 'A Stanford d.school-affiliated project merging food and human connection through interactive social experiences at pop-up events.',
       why: 'We believe that shared rituals — like making toast together — can dissolve social barriers and spark genuine relationship-building between strangers on campus.',
-      how: 'Co-launched the experience by designing the brand identity, facilitating relationship-building activities, and running the Toast Bar at Satellite Session pop-up events across Stanford.'
+      how: 'As cofounder and creative director, co-launched the experience, facilitated relationship-building activities, and ran the Toast Bar at Satellite Session pop-up events across Stanford.'
     },
     {
-      slug: 'eyetoeye',
       img: '../assets/eyetoeye.PNG',
       title: 'Seeing Eye to Eye',
       date: 'Nov 2025',
       tag: 'Experience Design · DESIGN 1',
-      gallery: [
-        { src: '../assets/eyetoeye.PNG', caption: 'Final exhibition installation' },
-        { src: '../assets/sketches/sketch5.jpg', caption: 'Research synthesis map' },
-        { src: '../assets/sketches/sketch6.jpg', caption: 'Prototype iterations' },
-        { src: '../assets/sketches/sketch7.jpg', caption: 'User testing sessions' },
-        { src: '../assets/sketches/sketch8.jpg', caption: 'Final prototype' },
-      ],
+      gallery: [ { src: '../assets/eyetoeye.PNG', caption: 'Seeing Eye to Eye' } ],
       what: 'A conversation-based campus experience showcasing how empathy improves the quality and safety of cross-political conversations.',
       why: 'In a polarized campus environment, we sought to create a tangible, low-stakes space where students could experience the difference that genuine listening makes in difficult dialogue.',
       how: 'Led research, synthesis, and prototyping for the installation. Conducted user testing, iterated on conversation prompts and physical space design, and presented at the DESIGN 1 end-of-quarter showcase.'
     },
     {
-      slug: 'sustainable',
+      img: null,
+      title: 'NYT for Gen Z',
+      date: 'May 2026',
+      tag: 'UI/UX · DESIGN 121',
+      gallery: [],
+      what: 'A reimagined UI for the New York Times website and app that makes news more socially engaging for Gen Z.',
+      why: 'Young readers increasingly get news socially. The goal was to meet them there while preserving the journalistic trust that makes the Times the Times.',
+      how: 'Conducted user research and co-creation sessions, then designed a high-fidelity interactive prototype as a team, receiving project feedback from a NYT associate.'
+    },
+    {
       img: '../assets/sustainable.PNG',
       title: 'Sustainable',
       date: '2024',
       tag: 'Campaign Design',
-      gallery: [
-        { src: '../assets/sustainable.PNG', caption: 'Campaign hero visual' },
-        { src: '../assets/sketches/sketch9.jpg',  caption: 'Brand color explorations' },
-        { src: '../assets/sketches/sketch10.jpg', caption: 'Data visualization concepts' },
-        { src: '../assets/sketches/sketch11.jpg', caption: 'Print collateral' },
-        { src: '../assets/sketches/sketch12.jpg', caption: 'Digital assets' },
-      ],
+      gallery: [ { src: '../assets/sustainable.PNG', caption: 'Sustainable' } ],
       what: 'A concept campaign for sustainable living using clean design systems, earth tones, and data-driven visual storytelling.',
       why: 'Sustainability communication is often either alarmist or dry — this project explored how design can make environmental data feel urgent yet approachable.',
       how: 'Developed a full visual identity system including typography, color palette, iconography, and a suite of print and digital campaign materials.'
     },
     {
-      slug: 'meatball',
       img: '../assets/meatball.PNG',
       title: 'Meatball',
       date: '2024',
       tag: 'Packaging · Brand Identity',
-      gallery: [
-        { src: '../assets/meatball.PNG', caption: 'Packaging final design' },
-        { src: '../assets/sketches/sketch13.jpg', caption: 'Early ideation' },
-        { src: '../assets/sketches/sketch14.jpg', caption: 'Typography explorations' },
-        { src: '../assets/sketches/sketch15.jpg', caption: 'Color studies' },
-        { src: '../assets/sketches/sketch16.jpg', caption: 'Mockup photography' },
-      ],
+      gallery: [ { src: '../assets/meatball.PNG', caption: 'Meatball' } ],
       what: 'A playful packaging and identity project celebrating the unexpected joy of comfort food culture through bold, unapologetic design.',
       why: 'Food packaging design often takes itself too seriously. This project leaned into maximalist joy, nostalgia, and the specific delight of a perfect meatball.',
       how: 'Designed the full packaging system including structural dielines, illustration, typography, and brand guidelines. Created mockup photography for presentation.'
@@ -366,118 +401,127 @@
   ];
 
   const SKETCH_COUNT = 49;
-  const CARD_W  = 105, CARD_H = 140;
-  const PROJ_W  = 260;
-  const MARGIN  = 50;
-  const VH = window.innerHeight, VW = window.innerWidth;
-  /* Compact: only 2× viewport height — cards dense, never barren */
-  const BOARD_H = VH * 2.8;
+  const CARD_W = 105, CARD_H = 140;
+  const MARGIN = 40;
 
   const board   = document.getElementById('board');
   const svgEl   = document.getElementById('strings');
   const overlay = document.getElementById('overlay');
 
-  board.style.height = BOARD_H + 'px';
+  // lay the board out for the current window size (called again on resize)
+  const layout = () => {
+    const VW = document.documentElement.clientWidth, VH = window.innerHeight;
+    const mobile = VW < 640;
+    const PROJ_W = mobile ? Math.min(220, VW - 2 * MARGIN) : 260;
+    const BOARD_H = Math.max(VH * 2.8, PROJECTS.length * (PROJ_W + 160) + 200);
+    board.querySelectorAll('.card, .project-card').forEach(n => n.remove());
+    svgEl.innerHTML = '';
+    board.style.height = BOARD_H + 'px';
 
-  let seed = 91;
-  const rand = (a, b) => { seed = (seed * 16807) % 2147483647; return a + (seed/2147483647)*(b-a); };
+    let seed = 91;
+    const rand = (a, b) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+    const placed = [];
+    const fits = (x, y, w, h, pad = 14) => placed.every(p =>
+      x + w + pad < p.x || x > p.x + p.w + pad || y + h + pad < p.y || y > p.y + p.h + pad);
+    const place = (w, h, y0, y1, tries = 120) => {
+      for (let i = 0; i < tries; i++) {
+        const x = rand(MARGIN, VW - w - MARGIN), y = rand(y0, y1);
+        if (fits(x, y, w, h)) { placed.push({ x, y, w, h }); return { x, y }; }
+      }
+      const x = rand(MARGIN, VW - w - MARGIN), y = rand(y0, y1);
+      placed.push({ x, y, w, h }); return { x, y };
+    };
 
-  const placed = [];
-  const fits = (x,y,w,h,pad=14) => placed.every(p =>
-    x+w+pad < p.x || x > p.x+p.w+pad || y+h+pad < p.y || y > p.y+p.h+pad);
-  const place = (w,h,y0,y1,tries=120) => {
-    for (let i=0;i<tries;i++){
-      const x=rand(MARGIN,VW-w-MARGIN), y=rand(y0,y1);
-      if(fits(x,y,w,h)){placed.push({x,y,w,h});return{x,y};}
+    // project cards first so they get clear space; the first one sits near the top
+    const projStep = (BOARD_H - 200) / PROJECTS.length;
+    const projPins = [];
+    PROJECTS.forEach((proj, pi) => {
+      const yT = 90 + projStep * pi;
+      const pos = place(PROJ_W, PROJ_W, yT, yT + projStep * 0.5), rot = rand(-5, 5);
+      projPins.push({ cx: pos.x + PROJ_W / 2, cy: pos.y + 12 });
+      const a = document.createElement('a');
+      a.className = 'project-card'; a.href = '#';
+      a.style.cssText = `left:${pos.x}px;top:${pos.y}px;max-width:${PROJ_W}px;transform:rotate(${rot}deg)`;
+      a.style.setProperty('--base-rot', `rotate(${rot}deg)`);
+      if (proj.img) {
+        const img = document.createElement('img');
+        img.src = proj.img; img.alt = proj.title; img.loading = 'eager';
+        a.appendChild(img);
+      } else {
+        a.innerHTML = `<div class="cover-slot" style="width:${PROJ_W}px"><b>${proj.title}</b><span>${proj.tag}</span></div>`;
+      }
+      a.addEventListener('click', e => { e.preventDefault(); openDash(proj); });
+      board.appendChild(a);
+    });
+
+    // sketch cards in dense bands around them
+    const bandH = (BOARD_H - 100) / SKETCH_COUNT;
+    const sketchPins = [];
+    for (let i = 0; i < SKETCH_COUNT; i++) {
+      const y0 = 60 + i * bandH, y1 = Math.min(y0 + bandH * 1.6, BOARD_H - CARD_H - 40);
+      const pos = place(CARD_W, CARD_H, y0, y1), rot = rand(-10, 10);
+      sketchPins.push({ cx: pos.x + CARD_W / 2, cy: pos.y + 10 });
+      const d = document.createElement('div');
+      d.className = 'card';
+      d.style.cssText = `left:${pos.x}px;top:${pos.y}px;transform:rotate(${rot}deg)`;
+      const img = document.createElement('img');
+      img.src = `../assets/sketches/sketch${i + 1}.jpg`;
+      img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+      d.appendChild(img); board.appendChild(d);
     }
-    const x=rand(MARGIN,VW-w-MARGIN),y=rand(y0,y1);
-    placed.push({x,y,w,h});return{x,y};
+
+    // strings from each project to its nearest sketches
+    svgEl.setAttribute('viewBox', `0 0 ${VW} ${BOARD_H}`);
+    svgEl.setAttribute('width', VW); svgEl.setAttribute('height', BOARD_H);
+    projPins.forEach(proj => {
+      [...sketchPins]
+        .map(s => ({ ...s, dist: Math.hypot(s.cx - proj.cx, s.cy - proj.cy) }))
+        .sort((a, b) => a.dist - b.dist).slice(0, 5)
+        .forEach(s => {
+          const mx = (s.cx + proj.cx) / 2;
+          const my = Math.min(s.cy, proj.cy) + Math.abs(s.cy - proj.cy) * 0.28 + 22;
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          p.setAttribute('d', `M ${proj.cx} ${proj.cy} Q ${mx} ${my} ${s.cx} ${s.cy}`);
+          svgEl.appendChild(p);
+        });
+    });
   };
-
-  /* ── sketch cards: distributed in dense bands ── */
-  const bandH = (BOARD_H - 100) / SKETCH_COUNT;
-  const sketchPins = [];
-  for (let i=0;i<SKETCH_COUNT;i++){
-    const y0=60+i*bandH, y1=Math.min(y0+bandH*1.6, BOARD_H-CARD_H-40);
-    const pos=place(CARD_W,CARD_H,y0,y1), rot=rand(-10,10);
-    sketchPins.push({cx:pos.x+CARD_W/2, cy:pos.y+10});
-    const d=document.createElement('div');
-    d.className='card';
-    d.style.cssText=`left:${pos.x}px;top:${pos.y}px;transform:rotate(${rot}deg)`;
-    const img=document.createElement('img');
-    img.src=`../assets/sketches/sketch${i+1}.jpg`;
-    img.alt=''; img.loading='lazy'; img.decoding='async';
-    d.appendChild(img); board.appendChild(d);
-  }
-
-  /* ── project cards ── */
-  const projStep = BOARD_H / (PROJECTS.length+1);
-  const projPins = [];
-  PROJECTS.forEach((proj,pi)=>{
-    const yT=projStep*(pi+1);
-    const pos=place(PROJ_W,PROJ_W,yT-220,yT+220), rot=rand(-5,5);
-    projPins.push({cx:pos.x+PROJ_W/2, cy:pos.y+12});
-    const a=document.createElement('a');
-    a.className='project-card'; a.href='#';
-    a.style.cssText=`left:${pos.x}px;top:${pos.y}px;transform:rotate(${rot}deg)`;
-    a.style.setProperty('--base-rot',`rotate(${rot}deg)`);
-    const img=document.createElement('img');
-    img.src=proj.img; img.alt=proj.title; img.loading='eager';
-    a.appendChild(img);
-    a.addEventListener('click', e=>{
-      e.preventDefault();
-      openDash(proj);
-    });
-    board.appendChild(a);
+  layout();
+  let lastW = document.documentElement.clientWidth, resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      // phones fire resize when the address bar hides; only re-lay out on width changes
+      const w = document.documentElement.clientWidth;
+      if (w !== lastW) { lastW = w; layout(); }
+    }, 200);
   });
 
-  /* ── strings ── */
-  svgEl.setAttribute('viewBox',`0 0 ${VW} ${BOARD_H}`);
-  svgEl.setAttribute('width',VW); svgEl.setAttribute('height',BOARD_H);
-  projPins.forEach(proj=>{
-    const sorted=[...sketchPins]
-      .map(s=>({...s,dist:Math.hypot(s.cx-proj.cx,s.cy-proj.cy)}))
-      .sort((a,b)=>a.dist-b.dist).slice(0,5);
-    sorted.forEach(s=>{
-      const mx=(s.cx+proj.cx)/2;
-      const droop=Math.abs(s.cy-proj.cy)*0.28+22;
-      const my=Math.min(s.cy,proj.cy)+droop;
-      const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-      p.setAttribute('d',`M ${proj.cx} ${proj.cy} Q ${mx} ${my} ${s.cx} ${s.cy}`);
-      svgEl.appendChild(p);
-    });
+  // project list
+  const list = document.getElementById('proj-list');
+  PROJECTS.forEach(proj => {
+    const b = document.createElement('button');
+    b.textContent = proj.title;
+    b.addEventListener('click', () => openDash(proj));
+    list.appendChild(b);
   });
 
-  /* ── auto-scroll (down only) ── */
-  const SPEED = 38;
-  let scrollY=0, last=null, userScrolling=false, userTimer=null, paused=false;
-
+  /* ── gentle auto-drift: stops for good once you scroll, touch or press a key ── */
+  let drifting = !matchMedia('(prefers-reduced-motion: reduce)').matches, paused = false;
+  const stopDrift = () => { drifting = false; };
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(ev => window.addEventListener(ev, stopDrift, { passive: true }));
+  let last = null, driftY = window.scrollY;
   const tick = ts => {
-    if(!last) last=ts;
-    const dt=(ts-last)/1000; last=ts;
-    if(!paused && !userScrolling){
-      scrollY+=SPEED*dt;
-      if(scrollY>=BOARD_H-VH) scrollY=0;
+    if (!drifting) return;
+    if (last !== null && !paused) {
+      driftY += 30 * (ts - last) / 1000;
+      if (driftY >= document.documentElement.scrollHeight - window.innerHeight) { drifting = false; return; }
+      window.scrollTo(0, driftY);
     }
-    board.style.transform=`translateY(${-scrollY}px)`;
+    last = ts;
     requestAnimationFrame(tick);
   };
-  requestAnimationFrame(tick);
-
-  const manualScroll = dy => {
-    /* down only — clamp to not go negative (no scrolling up) */
-    scrollY = Math.max(0, Math.min(BOARD_H-VH, scrollY+dy));
-    userScrolling=true;
-    clearTimeout(userTimer);
-    userTimer=setTimeout(()=>{ userScrolling=false; },1800);
-  };
-
-  window.addEventListener('wheel', e=>{ if(e.deltaY>0) manualScroll(e.deltaY*0.8); },{passive:true});
-  let tY=0;
-  window.addEventListener('touchstart',e=>{tY=e.touches[0].clientY;},{passive:true});
-  window.addEventListener('touchmove',e=>{
-    const dy=tY-e.touches[0].clientY; if(dy>0) manualScroll(dy); tY=e.touches[0].clientY;
-  },{passive:true});
+  setTimeout(() => requestAnimationFrame(tick), 1200);
 
   /* ── dashboard ── */
   const openDash = proj => {
@@ -497,6 +541,14 @@
       fig.appendChild(img); fig.appendChild(cap);
       g.appendChild(fig);
     });
+    const slots = SHOW_PHOTO_SLOTS ? Math.max(0, 5 - proj.gallery.length) : 0;
+    for (let i = 0; i < slots; i++) {
+      const fig = document.createElement('figure');
+      fig.className = 'slot';
+      fig.textContent = 'photo';
+      g.appendChild(fig);
+    }
+    document.querySelector('.dash-gallery').style.display = g.children.length ? '' : 'none';
 
     // WWH
     const det=document.getElementById('dash-details');

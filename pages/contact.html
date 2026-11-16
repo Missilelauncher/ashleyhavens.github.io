@@ -44,6 +44,10 @@
     text-decoration: none; letter-spacing: 0.02em; display: block; transition: color 0.2s;
   }
   .info a:hover { color: #f03e8e; }
+  @media (max-width: 640px) {
+    .card { flex-direction: column; gap: 32px; padding: 0 24px; text-align: center; }
+    .info { border-left: none; padding-left: 0; border-top: 1px solid #e8e8e8; padding-top: 28px; align-items: center; }
+  }
 </style>
 </head>
 <body>
